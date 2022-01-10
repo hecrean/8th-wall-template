@@ -14,6 +14,8 @@ import {
   Vector2,
   WebGLRenderer,
 } from "three";
+import * as THREE from "three";
+
 import { OrbitControlsExp } from "three-stdlib";
 import { fromEvent, Observable } from "rxjs";
 import * as Rx from "rxjs";
@@ -48,7 +50,7 @@ const initMouse = (gl: WebGLRenderer) => {
 };
 
 const initLights = () => {
-  const ambientLigt = new AmbientLight();
+  const ambientLigt = new THREE.AmbientLight();
   return [ambientLigt];
 };
 
@@ -75,6 +77,30 @@ const initBox = ({ gl, intersection }: State) => {
   });
 
   return box;
+};
+
+const initVideoSurface = (
+  videoUrl: string
+): [HTMLVideoElement, Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>] => {
+  const videoEl = document.createElement("video");
+  videoEl.src = videoUrl;
+  videoEl.setAttribute("preload", "auto");
+  videoEl.setAttribute("loop", "");
+  videoEl.setAttribute("muted", "");
+  videoEl.setAttribute("playsinline", "");
+  videoEl.setAttribute("webkit-playsinline", "");
+
+  const texture = new THREE.VideoTexture(videoEl);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.format = THREE.RGBFormat;
+
+  const videoSurfaceMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.75, 1),
+    new THREE.MeshBasicMaterial({ map: texture })
+  );
+
+  return [videoEl, videoSurfaceMesh];
 };
 
 const init = (): State => {
