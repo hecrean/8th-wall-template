@@ -14,8 +14,12 @@ export type SurfaceHandles = { [K in TargetName]: VideoTargetSurface<K> };
 
 export const initSurfaces = (): SurfaceHandles => {
   return {
-    escher_bird: mkVideoTargetSurface("escher_bird", ""),
+    escher_birds: mkVideoTargetSurface("escher_birds", ""),
     por_amor_al_arte: mkVideoTargetSurface("por_amor_al_arte", ""),
+    conversations_with_friends: mkVideoTargetSurface(
+      "conversations_with_friends",
+      ""
+    ),
   };
 };
 

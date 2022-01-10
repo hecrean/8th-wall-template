@@ -47,9 +47,10 @@ const ArPipelineModule = (state: State): CameraPipelineModule => {
 
       // Add objects to the scene and set starting camera position.
 
-      scene.add(...Object.values(state.objectHandles));
-      scene.add(state.surfaceHandles.escher_bird.surfaceMesh);
-      scene.add(state.surfaceHandles.por_amor_al_arte.surfaceMesh);
+      Object.values(state.objectHandles).forEach((obj3d) => scene.add(obj3d));
+      Object.values(state.surfaceHandles).forEach((surface) =>
+        scene.add(surface.surfaceMesh)
+      );
 
       // prevent scroll/pinch gestures on canvas
       canvas.addEventListener("touchmove", (event) => {
@@ -57,7 +58,11 @@ const ArPipelineModule = (state: State): CameraPipelineModule => {
       });
 
       XR8.XrController.configure({
-        imageTargets: ["por_amor_al_arte", "escher_bird"],
+        imageTargets: [
+          "por_amor_al_arte",
+          "escher_birds",
+          "conversations_with_friends",
+        ],
       });
 
       // Sync the xr controller's 6DoF position and camera paremeters with our scene.

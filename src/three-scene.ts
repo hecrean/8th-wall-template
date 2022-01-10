@@ -103,7 +103,7 @@ const initVideoSurface = (
   return [videoEl, videoSurfaceMesh];
 };
 
-const init = (): State => {
+export const init = (): State => {
   const canvasEl = document.querySelector("canvas")!;
   const gl = new WebGLRenderer({
     canvas: canvasEl,
@@ -150,7 +150,7 @@ keysDownObservable$.pipe(Rx.map((event: KeyboardEvent) => {}));
 
 // --> Update
 
-const update = ({
+export const update = ({
   gl,
   camera,
   clock,
@@ -186,5 +186,3 @@ const update = ({
   gl.render(scene, camera);
   requestAnimationFrame(() => update(state));
 };
-
-update(state);
