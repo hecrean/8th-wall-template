@@ -11,21 +11,33 @@ import {
   onImageLostListener,
   onImageUpdatedListener,
   TargetName,
-} from "./target";
+} from "./image-target";
 import { initSurfaces, SurfaceHandles, surfaceHandlers } from "./surface";
 import { initObjects, ObjectHandles } from "./objects";
+import { UI, ui } from "./ui";
+import { Input, input } from "./input";
+import { Assets, assets } from "./assets";
 
 /// End Dev Utilities  ///////////////////////////////////////////////////////////////////
+
 type State = {
   surfaceHandles: SurfaceHandles;
   objectHandles: ObjectHandles;
+  raycaster: THREE.Raycaster;
+  ui: UI;
+  input: Input;
+  assets: Assets;
 };
 
 const initState = (): State => {
-  const surfaceHandles = initSurfaces();
-  const objectHandles = initObjects();
-
-  return { surfaceHandles, objectHandles };
+  return {
+    surfaceHandles: initSurfaces(),
+    objectHandles: initObjects(),
+    ui: ui(),
+    raycaster: new THREE.Raycaster(),
+    input: input(),
+    assets: assets(),
+  };
 };
 
 const state = initState();

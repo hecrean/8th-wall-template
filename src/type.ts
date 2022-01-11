@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { TargetName } from "./target";
+import { TargetName } from "./image-target";
 
 /**
  * Emitted when image loading begins

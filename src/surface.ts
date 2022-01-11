@@ -1,7 +1,7 @@
 /**  */
 
 import * as THREE from "three";
-import { TargetName } from "./target";
+import { TargetName } from "./image-target";
 import {} from "./type";
 
 export type VideoTargetSurface<T = TargetName> = {
