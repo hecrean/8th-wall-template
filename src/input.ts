@@ -1,11 +1,12 @@
 import * as THREE from "three";
+import { DomEvent } from "./event";
 
 export type Input = {
-  tapPosition: THREE.Vector2;
+  domEvent: DomEvent;
 };
 
-export const input = () => {
+export const input = (): Input => {
   return {
-    tapPosition: new THREE.Vector2(),
+    domEvent: [],
   };
 };

@@ -1,7 +1,23 @@
 import THREE, { Intersection, Object3D, Vector2 } from "three";
-
+import { InteractionCache } from "./interaction-cache";
+import { State } from "./state";
+import { Input } from "./input";
 /**
- * keyboard events, chunks of data from websocket, jobs in a worker queue, etc.
+ * Events :
+ * - keyboard events
+ * - pointer events (by mouse) / touch events (my fingers)
+ * - image target found/updated/lost
+ *
+ *
+ * Pointer and touch events have to be updated for 3D scenes. There is no native machinery for dealing
+ * with clicks etc. on meshes. Using the three.js raycaster, three.js camera and native dom click/touch events
+ * on the 2D canvas surface, we extrapolate which meshes have been interacted with, and in what way. We have to
+ * define the nature of these interactions...
+ *
+ * We then create an interaction 'cache'. This stores information about how unique meshes respond to different
+ * events of which they are the target. i.e. we have to register event handlers for every interactive mesh in the
+ * scene...
+ *
  */
 
 export type PointerEventKinds =
@@ -29,93 +45,189 @@ export interface IntersectionEvent<TSourceEvent> extends THREE.Intersection {
   nativeEvent: TSourceEvent;
 }
 
-export function pointerEv(ev: PointerEvent) {
-  return { kind: "pointer" as const, ev };
+export function pointeroverEv(ev: PointerEvent) {
+  return { kind: "pointerover" as const, ev };
 }
-export type PointerEv = ReturnType<typeof pointerEv>;
-export function mouseEv(ev: PointerEvent) {
-  return { kind: "mouse" as const, ev };
-}
-export type MouseEv = ReturnType<typeof mouseEv>;
-export function wheelEv(ev: WheelEvent) {
-  return { kind: "wheel" as const, ev };
-}
-export type WheelEv = ReturnType<typeof wheelEv>;
-export function touchEv(ev: TouchEvent) {
-  return { kind: "touch" as const, ev };
-}
-export type TouchEv = ReturnType<typeof touchEv>;
+export type pointerover = ReturnType<typeof pointeroverEv>;
 
-export type DomEvent = PointerEv | MouseEv | WheelEv | TouchEv;
+export function pointerenterEv(ev: PointerEvent) {
+  return { kind: "pointerenter" as const, ev };
+}
+export type pointerenter = ReturnType<typeof pointerenterEv>;
 
-export type Events = {
-  onClick: EventListener;
-  onContextMenu: EventListener;
-  onDoubleClick: EventListener;
-  onWheel: EventListener;
-  onPointerDown: EventListener;
-  onPointerUp: EventListener;
-  onPointerLeave: EventListener;
-  onPointerMove: EventListener;
-  onPointerCancel: EventListener;
-  onLostPointerCapture: EventListener;
-};
+export function pointerdownEv(ev: PointerEvent) {
+  return { kind: "pointerdown" as const, ev };
+}
+export type pointerdown = ReturnType<typeof pointerdownEv>;
+
+export function pointermoveEv(ev: PointerEvent) {
+  return { kind: "pointermove" as const, ev };
+}
+export type pointermove = ReturnType<typeof pointermoveEv>;
+
+export function pointerrawupdateEv(ev: PointerEvent) {
+  return { kind: "pointerrawupdate" as const, ev };
+}
+export type pointerrawupdate = ReturnType<typeof pointerrawupdateEv>;
+
+export function pointerupEv(ev: PointerEvent) {
+  return { kind: "pointerup" as const, ev };
+}
+export type pointerup = ReturnType<typeof pointerupEv>;
+
+export function pointercancelEv(ev: PointerEvent) {
+  return { kind: "pointercancel" as const, ev };
+}
+export type pointercancel = ReturnType<typeof pointercancelEv>;
+
+export function pointeroutEv(ev: PointerEvent) {
+  return { kind: "pointerout" as const, ev };
+}
+export type pointerout = ReturnType<typeof pointeroutEv>;
+
+export function pointerleaveEv(ev: PointerEvent) {
+  return { kind: "pointerleave" as const, ev };
+}
+export type pointerleave = ReturnType<typeof pointerleaveEv>;
+
+export type PointerEventADT =
+  | pointerover
+  | pointerenter
+  | pointerdown
+  | pointermove
+  | pointerrawupdate
+  | pointerup
+  | pointercancel
+  | pointerout
+  | pointerleave;
+
+export function touchstartEv(ev: TouchEvent) {
+  return { kind: "pointerleave" as const, ev };
+}
+
+export type touchstart = ReturnType<typeof touchstartEv>;
+
+export function touchmoveEv(ev: TouchEvent) {
+  return { kind: "touchmove" as const, ev };
+}
+export type touchmove = ReturnType<typeof touchmoveEv>;
+
+export function touchendEv(ev: TouchEvent) {
+  return { kind: "touchend" as const, ev };
+}
+export type touchend = ReturnType<typeof touchendEv>;
+
+export function touchcancelEv(ev: TouchEvent) {
+  return { kind: "touchcancel" as const, ev };
+}
+export type touchcancel = ReturnType<typeof touchcancelEv>;
+
+export type TouchEventADT = touchstart | touchmove | touchend | touchcancel;
+
+///
+
+export type DomEvent = PointerEventADT | TouchEventADT;
 
 export type EventHandlers = {
-  onClick?: (event: IntersectionEvent<MouseEv>) => void;
-  onContextMenu?: (event: IntersectionEvent<MouseEv>) => void;
-  onDoubleClick?: (event: IntersectionEvent<MouseEv>) => void;
-  onPointerUp?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerDown?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerOver?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerOut?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerEnter?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerLeave?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerMove?: (event: IntersectionEvent<PointerEv>) => void;
-  onPointerMissed?: (event: MouseEv) => void;
-  onPointerCancel?: (event: IntersectionEvent<PointerEv>) => void;
-  onWheel?: (event: IntersectionEvent<WheelEv>) => void;
-  onTouchStart?: (event: IntersectionEvent<TouchEv>) => void;
-  onTouchMove?: (event: IntersectionEvent<TouchEv>) => void;
-  onTouchEnd?: (event: IntersectionEvent<TouchEv>) => void;
-  onTouchCancel?: (event: IntersectionEvent<TouchEv>) => void;
+  onPointerUp?: (event: IntersectionEvent<pointerup>) => State;
+  onPointerDown?: (event: IntersectionEvent<pointerdown>) => State;
+  onPointerOver?: (event: IntersectionEvent<pointerover>) => State;
+  onPointerOut?: (event: IntersectionEvent<pointerout>) => State;
+  onPointerEnter?: (event: IntersectionEvent<pointerenter>) => State;
+  onPointerLeave?: (event: IntersectionEvent<pointerleave>) => State;
+  onPointerMove?: (event: IntersectionEvent<pointermove>) => State;
+  onPointerCancel?: (event: IntersectionEvent<pointercancel>) => State;
+  onTouchStart?: (event: IntersectionEvent<touchstart>) => State;
+  onTouchMove?: (event: IntersectionEvent<touchmove>) => State;
+  onTouchEnd?: (event: IntersectionEvent<touchend>) => State;
+  onTouchCancel?: (event: IntersectionEvent<touchcancel>) => State;
 };
 
-const buttonEventApi: EventHandlers = {
-  onTouchStart: (event) => {
-    //Prevent the browser from processing emulated mouse events.
-    event.nativeEvent.ev.preventDefault();
-  },
-  onTouchEnd: (event) => {},
-  onTouchMove: (event) => {},
-  onTouchCancel: (event) => {},
+const action = <DomEvent>(
+  ev: IntersectionEvent<DomEvent>,
+  state: State,
+  handler?: (event: IntersectionEvent<DomEvent>) => State
+) => {
+  return handler ? handler(ev) : state;
 };
 
-const canvasEventApi: EventHandlers = {};
+export const theeEventInterpreter = (
+  ev: IntersectionEvent<DomEvent>,
+  state: State
+): State => {
+  const [_, sceneGraphCtx] = state;
 
-// db of object3d that are interactive, and their event handlers:
-export type InteractionCache = {
-  [key: string]: {
-    eventHandlers: EventHandlers;
-  };
+  const handlers = sceneGraphCtx.interactionCache.get(ev.object.uuid);
+  if (!handlers) return state;
+
+  switch (ev.nativeEvent.kind) {
+    case "pointercancel":
+      return action<pointercancel>(
+        ev as IntersectionEvent<pointercancel>,
+        state,
+        handlers.onPointerCancel
+      );
+    case "pointerdown":
+      return action<pointerdown>(
+        ev as IntersectionEvent<pointerdown>,
+        state,
+        handlers.onPointerDown
+      );
+    case "pointerenter":
+      return action<pointerenter>(
+        ev as IntersectionEvent<pointerenter>,
+        state,
+        handlers.onPointerEnter
+      );
+    case "pointerleave":
+      return action<pointerleave>(
+        ev as IntersectionEvent<pointerleave>,
+        state,
+        handlers.onPointerLeave
+      );
+    case "pointermove":
+      return action<pointermove>(
+        ev as IntersectionEvent<pointermove>,
+        state,
+        handlers.onPointerMove
+      );
+    case "pointerout":
+      return action<pointerout>(
+        ev as IntersectionEvent<pointerout>,
+        state,
+        handlers.onPointerOut
+      );
+    case "pointerover":
+      return action<pointerover>(
+        ev as IntersectionEvent<pointerover>,
+        state,
+        handlers.onPointerOver
+      );
+    case "pointerrawupdate":
+      return state;
+    case "pointerup":
+      return action<pointerup>(
+        ev as IntersectionEvent<pointerup>,
+        state,
+        handlers.onPointerUp
+      );
+    case "touchcancel":
+      return action<touchcancel>(
+        ev as IntersectionEvent<touchcancel>,
+        state,
+        handlers.onTouchCancel
+      );
+    case "touchend":
+      return action<touchend>(
+        ev as IntersectionEvent<touchend>,
+        state,
+        handlers.onTouchEnd
+      );
+    case "touchmove":
+      return action<touchmove>(
+        ev as IntersectionEvent<touchmove>,
+        state,
+        handlers.onTouchMove
+      );
+  }
 };
-
-export const interactionCache = (): InteractionCache => {
-  return {};
-};
-
-interface InteractionCacheApi {
-  register: (
-    cache: InteractionCache
-  ) => (o: Object3D, eventHandlers: EventHandlers) => void;
-  unregister: (cache: InteractionCache) => (o: Object3D) => void;
-}
-
-export const interactionCacheApi: InteractionCacheApi = {
-  register: (cache) => (o, eventHandlers) => {
-    cache[o.uuid] = { eventHandlers: eventHandlers };
-  },
-  unregister: (cache) => (o) => {},
-};
-
-export const interpretEventStream = () => {};

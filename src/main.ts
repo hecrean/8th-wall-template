@@ -4,8 +4,8 @@ import "./style.css";
 
 // loadAr();
 
-import { init, update } from "./three-scene";
+// import { init, update } from "./three-scene";
 
-const state = init();
+// const state = init();
 
-update(state);
+// update(state);

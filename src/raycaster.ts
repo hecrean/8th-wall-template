@@ -3,11 +3,10 @@ import { Vector2 } from "three";
 import {
   IntersectionEvent,
   DomEvent,
-  MouseEv,
-  PointerEv,
-  TouchEv,
-  WheelEv,
+  TouchEventADT,
+  PointerEventADT,
 } from "./event";
+import { SceneGraphCtx, RenderCxt } from "./state";
 
 export const initRaycaster = () => {
   const raycaster = new THREE.Raycaster();
@@ -25,12 +24,14 @@ interface RaycasterApi {
     screenRaySource: THREE.Vector2,
     camera: THREE.PerspectiveCamera
   ) => void;
-  castRayInResponseToDomEvent: (
+  threeEvent: (
     domEvent: DomEvent
-  ) => (
-    raycaster: THREE.Raycaster,
-    camera: THREE.PerspectiveCamera
-  ) => (scene: THREE.Scene) => IntersectionEvent<DomEvent>[];
+  ) => ({
+    raycaster,
+  }: SceneGraphCtx) => ({
+    scene,
+    camera,
+  }: RenderCxt) => IntersectionEvent<DomEvent>[];
 }
 
 export const api: RaycasterApi = {
@@ -38,58 +39,68 @@ export const api: RaycasterApi = {
     raycaster.setFromCamera(screenRaySource, camera);
   },
 
-  castRayInResponseToDomEvent: (domEvent) => (raycaster, camera) => (scene) => {
-    switch (domEvent.kind) {
-      case "mouse": {
-        // calculate the tap position in normalised device coordinates :
-        const clickPosition = new Vector2(
-          domEvent.ev.offsetX,
-          domEvent.ev.offsetY
-        );
+  threeEvent:
+    (domEvent) =>
+    ({ raycaster }) =>
+    ({ scene, camera }) => {
+      switch (domEvent.kind) {
+        // case "mouse": {
+        //   // calculate the tap position in normalised device coordinates :
+        //   const clickPosition = new Vector2(
+        //     domEvent.ev.offsetX,
+        //     domEvent.ev.offsetY
+        //   );
 
-        raycaster.setFromCamera(clickPosition, camera);
+        //   raycaster.setFromCamera(clickPosition, camera);
 
-        const intersections = raycaster.intersectObjects(scene.children);
-        const mouseEvts: Array<IntersectionEvent<MouseEv>> = intersections.map(
-          (intersection) => ({
-            ...intersection,
-            nativeEvent: domEvent,
-          })
-        );
-        return mouseEvts;
-      }
-      case "pointer": {
-        const pointerPosition = new Vector2(
-          domEvent.ev.offsetX,
-          domEvent.ev.offsetY
-        );
+        //   const intersections = raycaster.intersectObjects(scene.children);
+        //   const mouseEvts: Array<IntersectionEvent<MouseEv>> = intersections.map(
+        //     (intersection) => ({
+        //       ...intersection,
+        //       nativeEvent: domEvent,
+        //     })
+        //   );
+        //   return mouseEvts;
+        // }
+        case "pointercancel":
+        case "pointerdown":
+        case "pointerenter":
+        case "pointerleave":
+        case "pointermove":
+        case "pointerout":
+        case "pointerover":
+        case "pointerrawupdate":
+        case "pointerup": {
+          const ev = domEvent.ev as PointerEvent;
+          const pointerPosition = new Vector2(ev.offsetX, ev.offsetY);
 
-        raycaster.setFromCamera(pointerPosition, camera);
+          raycaster.setFromCamera(pointerPosition, camera);
 
-        const intersections = raycaster.intersectObjects(scene.children);
-        const pointerEvts: Array<IntersectionEvent<PointerEv>> =
-          intersections.map((intersection) => ({
+          const intersections = raycaster.intersectObjects(scene.children);
+          const pointerEvts = intersections.map((intersection) => ({
             ...intersection,
             nativeEvent: domEvent,
           }));
-        return pointerEvts;
-      }
-      case "touch": {
-        let touchEvts: IntersectionEvent<TouchEv>[] = [];
-        for (let i = 0; i < domEvent.ev.touches.length; i++) {
-          const ev = createTouchEv(domEvent, raycaster, camera, scene, i);
-          touchEvts = touchEvts.concat(ev);
+          return pointerEvts;
         }
-        return touchEvts;
+        case "touchcancel":
+        case "touchend":
+        case "touchmove": {
+          let touchEvts: IntersectionEvent<TouchEventADT>[] = [];
+          for (let i = 0; i < domEvent.ev.touches.length; i++) {
+            const ev = createTouchEv(domEvent, raycaster, camera, scene, i);
+            touchEvts = touchEvts.concat(ev);
+          }
+          return touchEvts;
+        }
+        // case "wheel":
+        //   return [];
       }
-      case "wheel":
-        return [];
-    }
-  },
+    },
 };
 
 const createTouchEv = (
-  event: TouchEv,
+  event: TouchEventADT,
   raycaster: THREE.Raycaster,
   camera: THREE.PerspectiveCamera,
   scene: THREE.Scene,
@@ -103,7 +114,7 @@ const createTouchEv = (
   raycaster.setFromCamera(touchPositionInNDC, camera);
 
   const intersections = raycaster.intersectObjects(scene.children);
-  const touchEvts: Array<IntersectionEvent<TouchEv>> = intersections.map(
+  const touchEvts: Array<IntersectionEvent<TouchEventADT>> = intersections.map(
     (intersection) => ({
       ...intersection,
       nativeEvent: event,

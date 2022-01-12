@@ -1,44 +1,16 @@
-/**
- * This a utlity template file for creating 8th wall apps. Code it up here, and then simply copy and paste the code below the
- * dotted line into the app in the cloud environment
- */
-
-/// Start Dev Utilities  ///////////////////////////////////////////////////////////////////
 import * as THREE from "three";
 import { XR8, XRExtras, CameraPipelineModule } from "./type";
 import {
   onImageFoundListener,
   onImageLostListener,
   onImageUpdatedListener,
-  TargetName,
 } from "./image-target";
-import { initSurfaces, SurfaceHandles, surfaceHandlers } from "./surface";
-import { initObjects, ObjectHandles } from "./objects";
-import { UI, ui } from "./ui";
-import { Input, input } from "./input";
-import { Assets, assets } from "./assets";
+import { api as raycasterApi } from "./raycaster";
+import { touchstartEv, interpretEventStream } from "./event";
 
-/// End Dev Utilities  ///////////////////////////////////////////////////////////////////
+import * as RXJS from "rxjs";
 
-type State = {
-  surfaceHandles: SurfaceHandles;
-  objectHandles: ObjectHandles;
-  raycaster: THREE.Raycaster;
-  ui: UI;
-  input: Input;
-  assets: Assets;
-};
-
-const initState = (): State => {
-  return {
-    surfaceHandles: initSurfaces(),
-    objectHandles: initObjects(),
-    ui: ui(),
-    raycaster: new THREE.Raycaster(),
-    input: input(),
-    assets: assets(),
-  };
-};
+import { State, initState } from "./state";
 
 const state = initState();
 
@@ -64,10 +36,28 @@ const ArPipelineModule = (state: State): CameraPipelineModule => {
         scene.add(surface.surfaceMesh)
       );
 
-      // prevent scroll/pinch gestures on canvas
-      canvas.addEventListener("touchmove", (event) => {
-        event.preventDefault();
-      });
+      const touchMoveOnCanvasSource = RXJS.fromEvent<TouchEvent>(
+        canvas,
+        "touchmove"
+      );
+      touchMoveOnCanvasSource.pipe(RXJS.map((event) => event.preventDefault()));
+
+      const touchStartOnCanvasSource = RXJS.fromEvent<TouchEvent>(
+        canvas,
+        "touchstart"
+      );
+
+      touchStartOnCanvasSource.pipe(
+        RXJS.map((event) => {
+          const intersectionEvents = raycasterApi.threeEvent(
+            touchstartEv(event)
+          )(
+            state.raycaster,
+            camera
+          )(scene);
+          interpretEventStream(intersectionEvents, state.interactionCache);
+        })
+      );
 
       XR8.XrController.configure({
         imageTargets: [
