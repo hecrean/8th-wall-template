@@ -40,8 +40,10 @@ const calculateStep = (prevFrame: FrameData): Observable<FrameData> => {
 //  emitted value. This works perfectly for calculating our frame steps because each step
 //  needs to know the lastStepFrameTime to calculate the next. We also only want to request
 //  a new frame once the currently requested frame has returned.
-export const frames$ = of(undefined).pipe(
-  //@ts-ignore
+export const frames$ = of({
+  frameStartTime: 0,
+  deltaTime: 1 / 60,
+}).pipe(
   expand((val) => calculateStep(val)),
   // Expand emits the first value provided to it, and in this
   //  case we just want to ignore the undefined input frame

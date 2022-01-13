@@ -12,7 +12,7 @@ import {
 } from "./event";
 import { Input } from "./input";
 
-declare const canvasEl: HTMLCanvasElement;
+const canvasEl: HTMLCanvasElement = document.querySelector("canvas")!;
 
 //observables :
 // dom:

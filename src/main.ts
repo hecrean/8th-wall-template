@@ -4,8 +4,13 @@ import "./style.css";
 
 // loadAr();
 
-// import { init, update } from "./three-scene";
+import { update } from "./three-scene";
+import { initState } from "./state";
 
-// const state = init();
+update(initState);
 
-// update(state);
+// import { run } from "./state";
+
+// run();
+
+// console.log("running___");
