@@ -2,46 +2,14 @@ import THREE, { Intersection, Object3D, Vector2 } from "three";
 import { InteractionCache } from "./interaction-cache";
 import { State } from "./state";
 import { Input } from "./input";
-/**
- * Events :
- * - keyboard events
- * - pointer events (by mouse) / touch events (my fingers)
- * - image target found/updated/lost
- *
- *
- * Pointer and touch events have to be updated for 3D scenes. There is no native machinery for dealing
- * with clicks etc. on meshes. Using the three.js raycaster, three.js camera and native dom click/touch events
- * on the 2D canvas surface, we extrapolate which meshes have been interacted with, and in what way. We have to
- * define the nature of these interactions...
- *
- * We then create an interaction 'cache'. This stores information about how unique meshes respond to different
- * events of which they are the target. i.e. we have to register event handlers for every interactive mesh in the
- * scene...
- *
- */
 
-export type PointerEventKinds =
-  | "pointerover"
-  | "pointerenter"
-  | "pointerdown"
-  | "pointermove"
-  | "pointerrawupdate"
-  | "pointerup"
-  | "pointercancel"
-  | "pointerout"
-  | "pointerleave";
+import { Events, EventADT } from "./types/dom/event";
 
-export type TouchEventKinds =
-  | "touchstart" // fired when a touch point is placed on the touch surface.
-  | "touchmove" // fired when a touch point is moved along the touch surface.
-  | "touchend" // fired when a touch point is removed from the touch surface.
-  | "touchcancel"; // fired when a touch point has been disrupted in an implementation-specific manner (for example, too many touch points are created).
+export type CanvasEvents = Events<"canvas">;
+export type CavnasEventADT = EventADT<"canvas">;
 
-export type EventKinds = PointerEventKinds | TouchEventKinds;
-
-export type Camera = THREE.OrthographicCamera | THREE.PerspectiveCamera;
-
-export interface IntersectionEvent<TSourceEvent> extends THREE.Intersection {
+export interface IntersectionEvent<TSourceEvent = CavnasEventADT>
+  extends THREE.Intersection {
   nativeEvent: TSourceEvent;
 }
 
@@ -129,78 +97,74 @@ export type TouchEventADT = touchstart | touchmove | touchend | touchcancel;
 export type DomEvent = PointerEventADT | TouchEventADT;
 
 export type EventHandlers = {
-  onPointerUp?: (event: IntersectionEvent<pointerup>) => State;
-  onPointerDown?: (event: IntersectionEvent<pointerdown>) => State;
-  onPointerOver?: (event: IntersectionEvent<pointerover>) => State;
-  onPointerOut?: (event: IntersectionEvent<pointerout>) => State;
-  onPointerEnter?: (event: IntersectionEvent<pointerenter>) => State;
-  onPointerLeave?: (event: IntersectionEvent<pointerleave>) => State;
-  onPointerMove?: (event: IntersectionEvent<pointermove>) => State;
-  onPointerCancel?: (event: IntersectionEvent<pointercancel>) => State;
-  onTouchStart?: (event: IntersectionEvent<touchstart>) => State;
-  onTouchMove?: (event: IntersectionEvent<touchmove>) => State;
-  onTouchEnd?: (event: IntersectionEvent<touchend>) => State;
-  onTouchCancel?: (event: IntersectionEvent<touchcancel>) => State;
+  onPointerUp?: (event: IntersectionEvent<pointerup>) => void;
+  onPointerDown?: (event: IntersectionEvent<pointerdown>) => void;
+  onPointerOver?: (event: IntersectionEvent<pointerover>) => void;
+  onPointerOut?: (event: IntersectionEvent<pointerout>) => void;
+  onPointerEnter?: (event: IntersectionEvent<pointerenter>) => void;
+  onPointerLeave?: (event: IntersectionEvent<pointerleave>) => void;
+  onPointerMove?: (event: IntersectionEvent<pointermove>) => void;
+  onPointerCancel?: (event: IntersectionEvent<pointercancel>) => void;
+  onTouchStart?: (event: IntersectionEvent<touchstart>) => void;
+  onTouchMove?: (event: IntersectionEvent<touchmove>) => void;
+  onTouchEnd?: (event: IntersectionEvent<touchend>) => void;
+  onTouchCancel?: (event: IntersectionEvent<touchcancel>) => void;
 };
 
 const action = <DomEvent>(
   ev: IntersectionEvent<DomEvent>,
-  state: State,
-  handler?: (event: IntersectionEvent<DomEvent>) => State
+  handler?: (event: IntersectionEvent<DomEvent>) => void
 ) => {
-  return handler ? handler(ev) : state;
+  console.log(handler);
+  handler ? handler(ev) : () => {};
 };
 
 export const theeEventInterpreter = (
   ev: IntersectionEvent<DomEvent>,
   state: State
-): State => {
+) => {
   const [_, sceneGraphCtx] = state;
 
+  console.log("event uuid in interpreter", ev.object.uuid);
+  console.log("cache in intepreter", sceneGraphCtx.interactionCache);
   const handlers = sceneGraphCtx.interactionCache.get(ev.object.uuid);
-  if (!handlers) return state;
+  console.log("our handlers", handlers);
+  if (!handlers) return;
 
   switch (ev.nativeEvent.kind) {
     case "pointercancel":
       return action<pointercancel>(
         ev as IntersectionEvent<pointercancel>,
-        state,
         handlers.onPointerCancel
       );
     case "pointerdown":
-      return action<pointerdown>(
+      action<pointerdown>(
         ev as IntersectionEvent<pointerdown>,
-        state,
         handlers.onPointerDown
       );
     case "pointerenter":
       return action<pointerenter>(
         ev as IntersectionEvent<pointerenter>,
-        state,
         handlers.onPointerEnter
       );
     case "pointerleave":
       return action<pointerleave>(
         ev as IntersectionEvent<pointerleave>,
-        state,
         handlers.onPointerLeave
       );
     case "pointermove":
       return action<pointermove>(
         ev as IntersectionEvent<pointermove>,
-        state,
         handlers.onPointerMove
       );
     case "pointerout":
       return action<pointerout>(
         ev as IntersectionEvent<pointerout>,
-        state,
         handlers.onPointerOut
       );
     case "pointerover":
       return action<pointerover>(
         ev as IntersectionEvent<pointerover>,
-        state,
         handlers.onPointerOver
       );
     case "pointerrawupdate":
@@ -208,25 +172,21 @@ export const theeEventInterpreter = (
     case "pointerup":
       return action<pointerup>(
         ev as IntersectionEvent<pointerup>,
-        state,
         handlers.onPointerUp
       );
     case "touchcancel":
       return action<touchcancel>(
         ev as IntersectionEvent<touchcancel>,
-        state,
         handlers.onTouchCancel
       );
     case "touchend":
       return action<touchend>(
         ev as IntersectionEvent<touchend>,
-        state,
         handlers.onTouchEnd
       );
     case "touchmove":
       return action<touchmove>(
         ev as IntersectionEvent<touchmove>,
-        state,
         handlers.onTouchMove
       );
   }

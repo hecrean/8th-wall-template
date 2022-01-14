@@ -1,20 +1,15 @@
-import { fromEvent, map, merge } from "rxjs";
-import {
-  pointercancelEv,
-  pointerdownEv,
-  pointerenterEv,
-  pointermoveEv,
-  pointeroutEv,
-  pointeroverEv,
-  pointerrawupdateEv,
-  pointerupEv,
-  DomEvent,
-} from "./event";
+import { fromEvent, map, merge, Observable } from "rxjs";
+import { CavnasEventADT, CanvasEvents } from "./event";
 import { Input } from "./input";
+import { match, __, not, select, when } from "ts-pattern";
+import { EventADT } from "./types/dom/event";
 
 const canvasEl: HTMLCanvasElement = document.querySelector("canvas")!;
 
 //observables :
+
+const x = fromEvent<PointerEvent>(canvasEl, "pointerover");
+
 // dom:
 const pointerOver$ = fromEvent<PointerEvent>(canvasEl, "pointerover").pipe(
   map(pointeroverEv)
@@ -43,13 +38,20 @@ const pointerout$ = fromEvent<PointerEvent>(canvasEl, "pointerout").pipe(
   map(pointeroutEv)
 );
 
+// type HTMLElementEvent<K extends keyof HTMLElementEventMap> = {
+//   kind: K;
+//   ev: HTMLElementEventMap[K];
+// };
+
+// type HTMLElementObservables<K> = K extends keyof HTMLElementEventMap ? {[key in K]: HTMLElementEvent<K>} : never;
+
 export const input$ = merge(
-  pointerOver$,
-  pointerEnter$,
-  pointerdown$,
-  pointermove$,
-  pointerrawupdate$,
-  pointerup$,
-  pointercancel$,
-  pointerout$
+  // pointerOver$,
+  // pointerEnter$,
+  pointerdown$
+  // pointermove$,
+  // pointerrawupdate$,
+  // pointerup$,
+  // pointercancel$,
+  // pointerout$
 ).pipe(map<DomEvent, Input>((dom) => ({ domEvent: dom })));

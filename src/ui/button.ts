@@ -1,7 +1,7 @@
 import { EventHandlers } from "../event";
-import {} from "../main";
+import {} from "../utils";
 
-const buttonEventApi: EventHandlers = {
+export const buttonEventApi: EventHandlers = {
   onTouchStart: (event) => {
     //Prevent the browser from processing emulated mouse events.
     event.nativeEvent.ev.preventDefault();
@@ -9,6 +9,11 @@ const buttonEventApi: EventHandlers = {
   onTouchEnd: (event) => {},
   onTouchMove: (event) => {},
   onTouchCancel: (event) => {},
+  onPointerDown: (event) => {
+    console.log("-button event firing");
+    event.object;
+    event.object.position.x += 2;
+  },
 };
 
 const canvasEventApi: EventHandlers = {};

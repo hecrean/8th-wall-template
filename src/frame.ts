@@ -1,5 +1,5 @@
-import { Observable, of } from "rxjs";
-import { map, expand, filter, share } from "rxjs/operators";
+import { Observable, of, interval, animationFrameScheduler, pipe } from "rxjs";
+import { map, expand, filter, share, tap } from "rxjs/operators";
 
 export interface FrameData {
   frameStartTime: number;
@@ -40,7 +40,7 @@ const calculateStep = (prevFrame: FrameData): Observable<FrameData> => {
 //  emitted value. This works perfectly for calculating our frame steps because each step
 //  needs to know the lastStepFrameTime to calculate the next. We also only want to request
 //  a new frame once the currently requested frame has returned.
-export const frames$ = of({
+export const frames_1$ = of({
   frameStartTime: 0,
   deltaTime: 1 / 60,
 }).pipe(
@@ -51,3 +51,7 @@ export const frames$ = of({
   map((frame: FrameData) => frame.deltaTime),
   share()
 );
+
+// simpler implemnetation...
+
+export const frames$ = interval(0, animationFrameScheduler);

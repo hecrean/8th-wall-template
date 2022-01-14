@@ -72,11 +72,15 @@ export const api: RaycasterApi = {
         case "pointerrawupdate":
         case "pointerup": {
           const ev = domEvent.ev as PointerEvent;
-          const pointerPosition = new Vector2(ev.offsetX, ev.offsetY);
+          const pointerPosition = new Vector2(
+            (ev.clientX / window.innerWidth) * 2 - 1,
+            -(ev.clientY / window.innerHeight) * 2 + 1
+          );
 
           raycaster.setFromCamera(pointerPosition, camera);
 
           const intersections = raycaster.intersectObjects(scene.children);
+
           const pointerEvts = intersections.map((intersection) => ({
             ...intersection,
             nativeEvent: domEvent,

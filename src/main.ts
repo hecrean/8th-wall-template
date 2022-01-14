@@ -4,10 +4,19 @@ import "./style.css";
 
 // loadAr();
 
-import { update } from "./three-scene";
-import { initState } from "./state";
+import { update, responseToInput } from "./three-scene";
+import { synchroniseState, initRenderCxt, initSceneGraphCtx } from "./state";
+import { input$ } from "./observables";
 
-update(initState);
+const objStatus = threeObject(new Mesh());
+console.log(objStatus);
+
+const state = synchroniseState(initRenderCxt(), initSceneGraphCtx());
+console.log("top level STATE", state);
+
+update(state);
+
+input$.subscribe((input) => responseToInput(input, state));
 
 // import { run } from "./state";
 
