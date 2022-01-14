@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { EventHandlers } from "../event";
 
 export type UI = {
   button1: THREE.Mesh;
@@ -25,4 +26,19 @@ export const ui = (): UI => {
   return {
     button1,
   };
+};
+
+export const defaultEventHandlers: EventHandlers = {
+  onPointerEnter: (state, event) => state,
+  onPointerUp: (state, event) => state,
+  onPointerDown: (state, event) => state,
+  onPointerOver: (state, event) => state,
+  onPointerOut: (state, event) => state,
+  onPointerLeave: (state, event) => state,
+  onPointerMove: (state, event) => state,
+  onPointerCancel: (state, event) => state,
+  onTouchStart: (state, event) => state,
+  onTouchMove: (state, event) => state,
+  onTouchEnd: (state, event) => state,
+  onTouchCancel: (state, event) => state,
 };

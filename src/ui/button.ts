@@ -1,19 +1,51 @@
 import { EventHandlers } from "../event";
-import {} from "../utils";
+import { defaultEventHandlers } from ".";
+import { Mesh, Object3D, BufferGeometry, MeshStandardMaterial } from "three";
+
+const isMesh = (
+  o: Object3D
+): o is Mesh<BufferGeometry, MeshStandardMaterial> => {
+  return o instanceof Mesh;
+};
+
+const _ = (): void => {};
 
 export const buttonEventApi: EventHandlers = {
-  onTouchStart: (event) => {
+  ...defaultEventHandlers,
+  onTouchStart: ([renderCtx, sceneGraphCtx, userCtx], intersectionEv) => {
     //Prevent the browser from processing emulated mouse events.
-    event.nativeEvent.ev.preventDefault();
+    intersectionEv.nativeEvent.event.preventDefault();
+
+    return [renderCtx, sceneGraphCtx, userCtx];
   },
-  onTouchEnd: (event) => {},
-  onTouchMove: (event) => {},
-  onTouchCancel: (event) => {},
-  onPointerDown: (event) => {
-    console.log("-button event firing");
-    event.object;
-    event.object.position.x += 2;
+  // onPointerEnter: (state, intersectionEv) => {
+  //   const target = intersectionEv.object;
+  //   isMesh(target) ? target.material.color.set("green") : _;
+  //   return state;
+  // },
+  // onPointerLeave: (state, intersectionEv) => {
+  //   isMesh(intersectionEv.object)
+  //     ? intersectionEv.object.material.color.set("yellow")
+  //     : _;
+
+  //   return state;
+  // },
+  onPointerDown: (state, intersectionEv) => {
+    isMesh(intersectionEv.object)
+      ? intersectionEv.object.material.color.set("yellow")
+      : _;
+
+    return state;
+  },
+  onPointerUp: (state, intersectionEv) => {
+    isMesh(intersectionEv.object)
+      ? intersectionEv.object.material.color.set("blue")
+      : _;
+
+    return state;
   },
 };
 
-const canvasEventApi: EventHandlers = {};
+const canvasEventApi: EventHandlers = {
+  ...defaultEventHandlers,
+};

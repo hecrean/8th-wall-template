@@ -120,6 +120,7 @@ export type MatchElementByEventName<EN extends ElementsEventNames> =
       : never
     : never;
 
+
 export type MatchHTMLElementByEventName<EN extends HTMLElementsEventNames> =
   HTMLElements extends infer U
     ? U extends MetaHTMLElement<any, any, ElementEventMap & Record<EN, any>>
