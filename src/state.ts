@@ -1,15 +1,15 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 // import { OrbitControlsExp } from "three-stdlib";
-import { initSurfaces, SurfaceHandles } from "./surface";
-import { initObjects, ObjectHandles } from "./objects";
-import { UIs, registerUi, uiElements } from "./ui";
-import { Assets, assets } from "./assets";
-import { interactionCache, InteractionCache } from "./interaction-cache";
+import { initSurfaces, SurfaceHandles } from './surface';
+import { initObjects, ObjectHandles } from './objects';
+import { UIs, registerUi, uiElements } from './ui';
+import { Assets, assets } from './assets';
+import { interactionCache, InteractionCache } from './interaction-cache';
 
 export type RenderCxt = {
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  gl: THREE.Renderer;
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    gl: THREE.Renderer;
 };
 
 // export const initRenderCxt = (): RenderCxt => {
@@ -31,37 +31,37 @@ export type RenderCxt = {
 // };
 
 export type SceneGraphCtx = {
-  surfaceHandles: SurfaceHandles;
-  objectHandles: ObjectHandles;
-  raycaster: THREE.Raycaster;
-  ui: UIs;
-  assets: Assets;
-  interactionCache: InteractionCache;
-  mouse: THREE.Vector2;
+    surfaceHandles: SurfaceHandles;
+    objectHandles: ObjectHandles;
+    raycaster: THREE.Raycaster;
+    ui: UIs;
+    assets: Assets;
+    interactionCache: InteractionCache;
+    mouse: THREE.Vector2;
 };
 
 export const initSceneGraphCtx = (): SceneGraphCtx => {
-  const obj3ds = initObjects();
+    const obj3ds = initObjects();
 
-  const cache = interactionCache();
+    const cache = interactionCache();
 
-  const ui = uiElements();
-  registerUi(cache, ui);
+    const ui = uiElements();
+    registerUi(cache, ui);
 
-  const surfaces = initSurfaces();
+    const surfaces = initSurfaces();
 
-  return {
-    surfaceHandles: surfaces,
-    objectHandles: obj3ds,
-    ui: ui,
-    raycaster: new THREE.Raycaster(),
-    assets: assets(),
-    interactionCache: cache,
-    mouse: new THREE.Vector2(),
-  };
+    return {
+        surfaceHandles: surfaces,
+        objectHandles: obj3ds,
+        ui: ui,
+        raycaster: new THREE.Raycaster(),
+        assets: assets(),
+        interactionCache: cache,
+        mouse: new THREE.Vector2(),
+    };
 };
 
-export type UserCtx = {};
+export type UserCtx = unknown;
 
 export const initUserCtx = () => ({});
 

@@ -1,6 +1,6 @@
-import "./style.css";
+import './style.css';
 
-import { loadAr } from "./ar-module-pipeline";
+import { loadAr } from './ar-module-pipeline';
 
 loadAr();
 

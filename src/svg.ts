@@ -1,7 +1,7 @@
-import { SVGAsset, Assets, assetsApi as api } from "./assets";
+import { SVGAsset, Assets, assetsApi as api } from './assets';
 
 export const loadSvg = (assets: Assets, src: string) => {
-  const loadedSVG = api.load(assets)("svg", src) as Array<SVGAsset>;
-
-  loadedSVG.map(({}) => {});
+    const loadedSVG = api.load(assets)('svg', src) as Array<SVGAsset>;
+    return loadedSVG;
+    // loadedSVG.map(({}) => {});
 };
