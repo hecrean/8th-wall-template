@@ -1,26 +1,12 @@
-import { string } from "fp-ts";
 import * as THREE from "three";
+import { GLTFLoader, GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import {
-  GLTFLoader,
-  GLTF,
   SVGLoader,
   SVGResult,
   SVGResultPaths,
-} from "three-stdlib";
+} from "three/examples/jsm/loaders/SVGLoader";
 
-import {
-  Shape,
-  Group,
-  MeshNormalMaterial,
-  ExtrudeGeometry,
-  Mesh,
-  Box3,
-  Vector3,
-  DoubleSide,
-  Color,
-  BufferGeometry,
-  MeshPhongMaterial,
-} from "three";
+import { Shape } from "three";
 
 export interface Assets {
   log: Array<string>;
@@ -69,7 +55,7 @@ export const assetsApi: AssetApi = {
           assets.cache.url = gltf;
         };
         const onProgress = () => {};
-        const onError = (ev: ErrorEvent) => {};
+        const onError = (_: ErrorEvent) => {};
         assets.loaders.gltf.load(url, onLoad, onProgress, onError);
         return assets.cache.url;
       }
@@ -78,7 +64,7 @@ export const assetsApi: AssetApi = {
           assets.cache.url = texture;
         };
         const onProgress = () => {};
-        const onError = (ev: ErrorEvent) => {};
+        const onError = (_: ErrorEvent) => {};
         const texture = assets.loaders.texture.load(
           url,
           onLoad,
@@ -99,7 +85,7 @@ export const assetsApi: AssetApi = {
           assets.cache.url = loadedSVG;
         };
         const onProgress = () => {};
-        const onError = (ev: ErrorEvent) => {};
+        const onError = (_: ErrorEvent) => {};
         const svgAsset = assets.loaders.svg.load(
           url,
           onLoad,
