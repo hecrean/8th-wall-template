@@ -1,4 +1,8 @@
-import { XR8, XRExtras, CameraPipelineModule } from "./type";
+import type {
+  CameraPipelineModule,
+  XR8 as XR8Type,
+  XRExtras as XRExtrasType,
+} from "./type";
 import {
   onImageFoundListener,
   onImageLostListener,
@@ -13,6 +17,9 @@ import {
   initUserCtx,
 } from "./state";
 import { input$ } from "./event";
+
+declare const XR8: XR8Type;
+declare const XRExtras: XRExtrasType;
 
 // init state :
 const userCtx = initUserCtx();
@@ -32,7 +39,11 @@ const ArPipelineModule = ([sceneGraphCtx, userCtx]: [
     // onStart is called once when the camera feed begins. In this case, we need to wait for the
     // XR8.Threejs scene to be ready before we can access it to add content. It was created in
     // XR8.Threejs.pipelineModule()'s onStart method.
-    onStart: ({ canvas, canvasWidth, canvasHeight }) => {
+    onStart: (
+      {
+        /*canvas, canvasWidth, canvasHeight*/
+      }
+    ) => {
       const { scene, camera, renderer } = XR8.Threejs.xrScene(); // Get the 3js sceen from xr3js.
 
       const renderCtx: RenderCxt = { scene, camera, gl: renderer };
@@ -65,7 +76,9 @@ const ArPipelineModule = ([sceneGraphCtx, userCtx]: [
     // typically happen here.
     onUpdate: () => {
       // Update the position of objects in the scene, etc.
-      const { scene, camera, renderer, cameraTexture } = XR8.Threejs.xrScene();
+      const {
+        /*scene, camera, renderer, cameraTexture*/
+      } = XR8.Threejs.xrScene();
       //updateScene(scene, camera, renderer)
     },
     // Listeners are called right after the processing stage that fired them. This guarantees that

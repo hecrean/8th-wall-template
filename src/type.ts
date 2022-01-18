@@ -208,7 +208,7 @@ type XrController = {
   updateCameraProjectionMatrix: (args: any) => void; //Reset the scene's display geometry and the camera's starting position in the scene. The display geometry is needed to properly overlay the position of objects in the virtual scene on top of their corresponding position in the camera image. The starting position specifies where the camera will be placed and facing at the start of a session.
 };
 
-interface XR8 {
+export interface XR8 {
   // -- functions
   addCameraPipelineModule: (args: CameraPipelineModule) => {}; //Adds a module to the camera pipeline that will receive event callbacks for each stage in the camera pipeline.
   addCameraPipelineModules: (modules: Array<CameraPipelineModule>) => void; //Add multiple camera pipeline modules. This is a convenience method that calls addCameraPipelineModule in order on each element of the input array.
@@ -239,9 +239,9 @@ interface XR8 {
   XrPermissions: any; //  	Utilities for specifying permissions required by a pipeline module.
 }
 
-export declare const XR8: XR8;
+// export declare const XR8: XR8;
 
-interface XRExtras {
+export interface XRExtras {
   AFrame: any;
   AlmostThere: any;
   DebugWebViews: any;
@@ -257,4 +257,4 @@ interface XRExtras {
   ThreeExtras: any;
   MediaRecorder: any;
 }
-export declare const XRExtras: XRExtras;
+// export declare const XRExtras: XRExtras;
