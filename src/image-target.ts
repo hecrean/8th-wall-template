@@ -1,4 +1,4 @@
-import { XR8, XRExtras, CameraPipelineEventMsg } from "./type";
+import { CameraPipelineEventMsg } from "./type";
 import { surfaceHandlers, SurfaceHandles } from "./surface";
 import * as THREE from "three";
 

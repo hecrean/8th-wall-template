@@ -50,8 +50,8 @@ const ArPipelineModule = ([sceneGraphCtx, userCtx]: [
 
       const obj3ds = Object.values(sceneGraphCtx.objectHandles);
       renderCtx.scene.add(...obj3ds);
-      const uis = Object.values(sceneGraphCtx.ui);
-      renderCtx.scene.add(...uis.map((ui) => ui.el));
+      const uis = Object.values(sceneGraphCtx.ui).map((ui) => ui.el);
+      renderCtx.scene.add(...uis);
 
       input$.subscribe((input) =>
         responseToInput(input, [renderCtx, sceneGraphCtx, userCtx])
