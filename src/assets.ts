@@ -1,12 +1,33 @@
 import { string } from "fp-ts";
 import * as THREE from "three";
-import { GLTFLoader, GLTF } from "three-stdlib";
+import {
+  GLTFLoader,
+  GLTF,
+  SVGLoader,
+  SVGResult,
+  SVGResultPaths,
+} from "three-stdlib";
+
+import {
+  Shape,
+  Group,
+  MeshNormalMaterial,
+  ExtrudeGeometry,
+  Mesh,
+  Box3,
+  Vector3,
+  DoubleSide,
+  Color,
+  BufferGeometry,
+  MeshPhongMaterial,
+} from "three";
 
 export interface Assets {
   log: Array<string>;
   loaders: {
     gltf: GLTFLoader;
     texture: THREE.TextureLoader;
+    svg: SVGLoader;
   };
   loadQueue: Array<any>;
   cache: { [key: string]: any };
@@ -18,26 +39,30 @@ export const assets = () => {
     loaders: {
       gltf: new GLTFLoader(),
       texture: new THREE.TextureLoader(),
+      svg: new SVGLoader(),
     },
     loadQueue: [],
     cache: {},
   };
 };
 
-type AssetKind =
-  | "gltf"
-  | "texture"; /*| "image" | "audio" | "video" | "json" |*/
+type AssetKind = "gltf" | "texture" | "svg";
+/*| "image" | "audio" | "video" | "json" |*/
 
 interface AssetApi {
-  load: (assets: Assets) => (kind: AssetKind, url: string) => void;
+  load: (assets: Assets) => (kind: AssetKind, url: string) => any;
   log: () => void;
   loadQueue: (
     assets: Assets
   ) => (queue: Array<{ kind: AssetKind; url: string }>) => void;
 }
 
-export const api: AssetApi = {
+export const assetsApi: AssetApi = {
   load: (assets) => (kind, url) => {
+    if (assets.cache[url]) {
+      const asset = assets.cache[url];
+      return asset;
+    }
     switch (kind) {
       case "gltf": {
         const onLoad = (gltf: GLTF) => {
@@ -46,7 +71,7 @@ export const api: AssetApi = {
         const onProgress = () => {};
         const onError = (ev: ErrorEvent) => {};
         assets.loaders.gltf.load(url, onLoad, onProgress, onError);
-        break;
+        return assets.cache.url;
       }
       case "texture": {
         const onLoad = (texture: THREE.Texture) => {
@@ -54,13 +79,46 @@ export const api: AssetApi = {
         };
         const onProgress = () => {};
         const onError = (ev: ErrorEvent) => {};
-        assets.loaders.texture.load(url, onLoad, onProgress, onError);
-        break;
+        const texture = assets.loaders.texture.load(
+          url,
+          onLoad,
+          onProgress,
+          onError
+        );
+        return texture;
+      }
+      case "svg": {
+        const onLoad = (svgResult: SVGResult) => {
+          const loadedSVG: Array<SVGAsset> = svgResult.paths.flatMap(
+            (g: SVGResultPaths, index: number) =>
+              g
+                .toShapes(true)
+                .map((shape: Shape) => ({ shape, color: g.color, index }))
+          );
+
+          assets.cache.url = loadedSVG;
+        };
+        const onProgress = () => {};
+        const onError = (ev: ErrorEvent) => {};
+        const svgAsset = assets.loaders.svg.load(
+          url,
+          onLoad,
+          onProgress,
+          onError
+        );
+        return svgAsset;
       }
     }
   },
   loadQueue: (assets) => (queue) => {
-    queue.map(({ kind, url }) => api.load(assets)(kind, url));
+    queue.map(({ kind, url }) => assetsApi.load(assets)(kind, url));
   },
   log: () => {},
+};
+
+//utility types;
+export type SVGAsset = {
+  shape: THREE.Shape;
+  color: THREE.Color;
+  index: number;
 };

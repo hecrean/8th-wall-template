@@ -1,21 +1,14 @@
 import * as THREE from "three";
+import { OrbitControlsExp } from "three-stdlib";
 import { initSurfaces, SurfaceHandles } from "./surface";
 import { initObjects, ObjectHandles } from "./objects";
-import { UI, ui } from "./ui";
-import { Input } from "./input";
+import { UIs, registerUi, uiElements } from "./ui";
 import { Assets, assets } from "./assets";
 import {
   interactionCache,
   InteractionCache,
   interactionCacheApi,
 } from "./interaction-cache";
-import { BehaviorSubject, withLatestFrom, map, tap } from "rxjs";
-import { frames$ } from "./frame";
-import { input$ } from "./observables";
-import { theeEventInterpreter } from "./event";
-import { api as raycasterApi } from "./raycaster";
-import { BoxBufferGeometry, Mesh, MeshNormalMaterial } from "three";
-import { OrbitControlsExp } from "three-stdlib";
 import { buttonEventApi } from "./ui/button";
 
 export type RenderCxt = {
@@ -46,7 +39,7 @@ export type SceneGraphCtx = {
   surfaceHandles: SurfaceHandles;
   objectHandles: ObjectHandles;
   raycaster: THREE.Raycaster;
-  ui: UI;
+  ui: UIs;
   assets: Assets;
   interactionCache: InteractionCache;
   mouse: THREE.Vector2;
@@ -57,14 +50,15 @@ export const initSceneGraphCtx = (): SceneGraphCtx => {
 
   const cache = interactionCache();
 
-  Object.values(obj3ds).map((o) =>
-    interactionCacheApi.register(cache)(o, buttonEventApi)
-  );
+  const ui = uiElements();
+  registerUi(cache, ui);
+
+  const surfaces = initSurfaces();
 
   return {
-    surfaceHandles: initSurfaces(),
+    surfaceHandles: surfaces,
     objectHandles: obj3ds,
-    ui: ui(),
+    ui: ui,
     raycaster: new THREE.Raycaster(),
     assets: assets(),
     interactionCache: cache,
@@ -92,7 +86,9 @@ export const synchroniseState = (
   sceneGraphCtx: SceneGraphCtx
 ): State => {
   const obj3ds = Object.values(sceneGraphCtx.objectHandles);
+  const uis = Object.values(sceneGraphCtx.ui).map((ui) => ui.el);
   renderCtx.scene.add(...obj3ds);
+  renderCtx.scene.add(...uis);
 
   return [
     renderCtx,
@@ -100,54 +96,3 @@ export const synchroniseState = (
     initUserCtx(renderCtx.camera, renderCtx.gl.domElement),
   ];
 };
-
-/////
-
-// Since we will be updating our gamestate each frame we can use an Observable
-//  to track that as a series of states with the latest emission being the current
-//  state of our game.
-const state$: BehaviorSubject<State> = new BehaviorSubject(
-  synchroniseState(initRenderCxt(), initSceneGraphCtx())
-);
-
-const update = (
-  dt: number,
-  [renderCxt, sceneGraphCtx, userCxt]: State,
-  input: Input
-): [RenderCxt, SceneGraphCtx] => {
-  const canvasEl = renderCxt.gl.domElement;
-  const width = canvasEl.clientWidth;
-  const height = canvasEl.clientHeight;
-  const needResize = canvasEl.width !== width || canvasEl.height !== height;
-  if (needResize) {
-    renderCxt.gl.setSize(width, height, false);
-    renderCxt.camera.aspect = canvasEl.clientWidth / canvasEl.clientHeight;
-    renderCxt.camera.updateProjectionMatrix();
-  }
-
-  const { threeEvent } = raycasterApi;
-  const intersectionEvts = threeEvent(input.domEvent)(sceneGraphCtx)(renderCxt);
-
-  theeEventInterpreter(intersectionEvts[0], [
-    renderCxt,
-    sceneGraphCtx,
-    userCxt,
-  ]);
-  return [renderCxt, sceneGraphCtx];
-};
-
-const render = ([{ scene, gl, camera }, _]: State): void => {
-  gl.render(scene, camera);
-};
-
-//  We subscribe to our frames$ stream to kick it off, and make sure to
-//  combine in the latest emission from our inputs stream to get the data
-//  we need do perform our gameState updates.
-export const run = () =>
-  frames$
-    .pipe(
-      withLatestFrom(state$, input$),
-      map(([dt, state, input]) => update(dt, state, input)),
-      tap((state) => state$.next(state))
-    )
-    .subscribe((state) => render(state));

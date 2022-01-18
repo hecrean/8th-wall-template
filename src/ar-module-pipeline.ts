@@ -1,22 +1,28 @@
-import * as THREE from "three";
 import { XR8, XRExtras, CameraPipelineModule } from "./type";
 import {
   onImageFoundListener,
   onImageLostListener,
   onImageUpdatedListener,
 } from "./image-target";
-import { api as raycasterApi } from "./raycaster";
-import { touchstartEv, interpretEventStream } from "./event";
+import { responseToInput } from "./three-scene";
+import {
+  initSceneGraphCtx,
+  SceneGraphCtx,
+  RenderCxt,
+  UserCtx,
+  initUserCtx,
+} from "./state";
+import { input$ } from "./event";
 
-import * as RXJS from "rxjs";
-
-import { State, initState } from "./state";
-
-const state = initState();
+// init state :
+const userCtx = initUserCtx();
+const sceneGraphCtx = initSceneGraphCtx();
 
 /// Our ArPipelineModule :
-
-const ArPipelineModule = (state: State): CameraPipelineModule => {
+const ArPipelineModule = ([sceneGraphCtx, userCtx]: [
+  SceneGraphCtx,
+  UserCtx
+]): CameraPipelineModule => {
   // define variables
 
   return {
@@ -29,35 +35,16 @@ const ArPipelineModule = (state: State): CameraPipelineModule => {
     onStart: ({ canvas, canvasWidth, canvasHeight }) => {
       const { scene, camera, renderer } = XR8.Threejs.xrScene(); // Get the 3js sceen from xr3js.
 
+      const renderCtx: RenderCxt = { scene, camera, gl: renderer };
+
+      const obj3ds = Object.values(sceneGraphCtx.objectHandles);
+      renderCtx.scene.add(...obj3ds);
+
+      input$.subscribe((input) =>
+        responseToInput(input, [renderCtx, sceneGraphCtx, userCtx])
+      );
+
       // Add objects to the scene and set starting camera position.
-
-      Object.values(state.objectHandles).forEach((obj3d) => scene.add(obj3d));
-      Object.values(state.surfaceHandles).forEach((surface) =>
-        scene.add(surface.surfaceMesh)
-      );
-
-      const touchMoveOnCanvasSource = RXJS.fromEvent<TouchEvent>(
-        canvas,
-        "touchmove"
-      );
-      touchMoveOnCanvasSource.pipe(RXJS.map((event) => event.preventDefault()));
-
-      const touchStartOnCanvasSource = RXJS.fromEvent<TouchEvent>(
-        canvas,
-        "touchstart"
-      );
-
-      touchStartOnCanvasSource.pipe(
-        RXJS.map((event) => {
-          const intersectionEvents = raycasterApi.threeEvent(
-            touchstartEv(event)
-          )(
-            state.raycaster,
-            camera
-          )(scene);
-          interpretEventStream(intersectionEvents, state.interactionCache);
-        })
-      );
 
       XR8.XrController.configure({
         imageTargets: [
@@ -78,15 +65,15 @@ const ArPipelineModule = (state: State): CameraPipelineModule => {
     // typically happen here.
     onUpdate: () => {
       // Update the position of objects in the scene, etc.
-      //   const { scene, camera, renderer, cameraTexture } = XR8.Threejs.xrScene();
+      const { scene, camera, renderer, cameraTexture } = XR8.Threejs.xrScene();
       //updateScene(scene, camera, renderer)
     },
     // Listeners are called right after the processing stage that fired them. This guarantees that
     // updates can be applied at an appropriate synchronized point in the rendering cycle.
     listeners: [
-      onImageUpdatedListener(state.surfaceHandles),
-      onImageFoundListener(state.surfaceHandles),
-      onImageLostListener(state.surfaceHandles),
+      onImageUpdatedListener(sceneGraphCtx.surfaceHandles),
+      onImageFoundListener(sceneGraphCtx.surfaceHandles),
+      onImageLostListener(sceneGraphCtx.surfaceHandles),
     ],
   };
 };
@@ -104,7 +91,7 @@ const onxrloaded = () => {
     XRExtras.Loading.pipelineModule(), // Manages the loading screen on startup.
     XRExtras.RuntimeError.pipelineModule(), // Shows an error image on runtime error.
     // Custom pipeline modules.
-    ArPipelineModule(state),
+    ArPipelineModule([sceneGraphCtx, userCtx]),
   ]);
 
   // Open the camera and start running the camera run loop.

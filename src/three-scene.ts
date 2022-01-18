@@ -1,8 +1,8 @@
 import { State } from "./state";
 import { api as raycasterApi } from "./raycaster";
-import { Input } from "./input";
-import { theeEventInterpreter } from "./event";
-import { input$ } from "./observables";
+import { Input } from "./user";
+import { interpreter } from "./event";
+import { state } from "fp-ts";
 
 const resizeCanvas = ([{ gl, camera }, _]: State): void => {
   const canvasEl = gl.domElement;
@@ -29,13 +29,10 @@ export const responseToInput = (
   [renderCxt, sceneGraphCxt, userCtx]: State
 ) => {
   const { threeEvent } = raycasterApi;
-  const intersectionEvts = threeEvent(input.domEvent)(sceneGraphCxt)(renderCxt);
-  console.log("intersectionEvts", intersectionEvts);
-  theeEventInterpreter(intersectionEvts[0], [
-    renderCxt,
-    sceneGraphCxt,
-    userCtx,
-  ]);
+  const intersectionEvts = threeEvent(input.canvasEvent)(sceneGraphCxt)(
+    renderCxt
+  );
+  return interpreter([renderCxt, sceneGraphCxt, userCtx], intersectionEvts[0]);
 };
 
 // --> Update
