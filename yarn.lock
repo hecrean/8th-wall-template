@@ -272,16 +272,6 @@ follow-redirects@^1.14.0:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.6.tgz#8cfb281bbc035b3c067d6cd975b0f6ade6e855cd"
   integrity sha512-fhUl5EwSJbbl8AR+uYL2KQDxLkdSjZGR36xy46AO7cOMTrCMON6Sa28FmAnC2tRTDbd/Uuzz3aJBv7EBN7JH8A==
 
-fp-ts-contrib@^0.1.26:
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/fp-ts-contrib/-/fp-ts-contrib-0.1.26.tgz#b6f09f0dd7032197c3be3dceb2a49628a1ab464a"
-  integrity sha512-gi0COTH1xmN0dS9Vc2rgAmotQy8ab4z7CEVRhXxRNMhiuEEMx/Mvd0eLqAiV+hQZjI8xQct00w4Ywwacak35dA==
-
-fp-ts@^2.11.7:
-  version "2.11.7"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.7.tgz#ac05ac9a682bcbde669d34c5d5a16d19bb7a4ab8"
-  integrity sha512-UUpeygu50mV/J96Nk92fzHDznYXJxsO20wrUZGJppja1f8P+fhCaclcqcfubEyrH7XXPsmYn98CJF0BVAEn3ZQ==
-
 fsevents@~2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
@@ -408,11 +398,6 @@ tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
   integrity sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=
-
-ts-pattern@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-3.3.4.tgz#127f51bae9c29551f8fdc7c588ba1ec65b8e5c24"
-  integrity sha512-bZFReX+qF6N6c9SyycqBmYeoOgZCBep0+/M/kFan9Ujf1t2KqJJUhruVXWyeOVJrHxGPKbB+4xA7feqHS2t+Iw==
 
 tslib@^2.1.0:
   version "2.3.1"
