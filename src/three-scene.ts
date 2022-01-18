@@ -15,9 +15,9 @@ const resizeCanvas = ([{ gl, camera }, _]: State): void => {
   }
 };
 
-const log = ([{ scene }, _]: State) => {
-  console.log(scene.children);
-};
+// const log = ([{ scene }, _]: State) => {
+//   console.log(scene.children);
+// };
 
 const render = ([{ scene, gl, camera }, _]: State): void => {
   gl.render(scene, camera);
