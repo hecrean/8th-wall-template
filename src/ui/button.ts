@@ -8,18 +8,18 @@ const isMesh = (
 };
 
 export const defaultEventHandlers: EventHandlers = {
-  onPointerEnter: (state, event) => state,
-  onPointerUp: (state, event) => state,
-  onPointerDown: (state, event) => state,
-  onPointerOver: (state, event) => state,
-  onPointerOut: (state, event) => state,
-  onPointerLeave: (state, event) => state,
-  onPointerMove: (state, event) => state,
-  onPointerCancel: (state, event) => state,
-  onTouchStart: (state, event) => state,
-  onTouchMove: (state, event) => state,
-  onTouchEnd: (state, event) => state,
-  onTouchCancel: (state, event) => state,
+  onPointerEnter: (state, _) => state,
+  onPointerUp: (state, _) => state,
+  onPointerDown: (state, _) => state,
+  onPointerOver: (state, _) => state,
+  onPointerOut: (state, _) => state,
+  onPointerLeave: (state, _) => state,
+  onPointerMove: (state, _) => state,
+  onPointerCancel: (state, _) => state,
+  onTouchStart: (state, _) => state,
+  onTouchMove: (state, _) => state,
+  onTouchEnd: (state, _) => state,
+  onTouchCancel: (state, _) => state,
 };
 
 const unitFn = (): void => {};
@@ -53,8 +53,4 @@ export const buttonEventApi: EventHandlers = {
 
   //   return state;
   // },
-};
-
-const canvasEventApi: EventHandlers = {
-  ...defaultEventHandlers,
 };

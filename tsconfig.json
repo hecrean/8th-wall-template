@@ -10,9 +10,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "noUnusedLocals": false,
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
     "noImplicitReturns": true
   },
   "include": ["./src"]

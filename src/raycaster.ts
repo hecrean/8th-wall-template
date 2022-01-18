@@ -12,7 +12,7 @@ export const initRaycaster = () => {
 /**
  *
  */
-interface RaycasterApi {
+export interface RaycasterApi {
   setRayOrientation: (
     raycaster: THREE.Raycaster
   ) => (
