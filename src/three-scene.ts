@@ -2,7 +2,6 @@ import { State } from "./state";
 import { api as raycasterApi } from "./raycaster";
 import { Input } from "./user";
 import { interpreter } from "./event";
-import { state } from "fp-ts";
 
 const resizeCanvas = ([{ gl, camera }, _]: State): void => {
   const canvasEl = gl.domElement;
@@ -16,9 +15,9 @@ const resizeCanvas = ([{ gl, camera }, _]: State): void => {
   }
 };
 
-const log = ([{ scene }, _]: State) => {
-  console.log(scene.children);
-};
+// const log = ([{ scene }, _]: State) => {
+//   console.log(scene.children);
+// };
 
 const render = ([{ scene, gl, camera }, _]: State): void => {
   gl.render(scene, camera);

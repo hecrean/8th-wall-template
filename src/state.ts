@@ -1,15 +1,10 @@
 import * as THREE from "three";
-import { OrbitControlsExp } from "three-stdlib";
+// import { OrbitControlsExp } from "three-stdlib";
 import { initSurfaces, SurfaceHandles } from "./surface";
 import { initObjects, ObjectHandles } from "./objects";
 import { UIs, registerUi, uiElements } from "./ui";
 import { Assets, assets } from "./assets";
-import {
-  interactionCache,
-  InteractionCache,
-  interactionCacheApi,
-} from "./interaction-cache";
-import { buttonEventApi } from "./ui/button";
+import { interactionCache, InteractionCache } from "./interaction-cache";
 
 export type RenderCxt = {
   scene: THREE.Scene;
