@@ -11,7 +11,6 @@ import { input$ } from "./event";
 const state = synchroniseState(initRenderCxt(), initSceneGraphCtx());
 update(state);
 input$.subscribe((input) => responseToInput(input, state));
-console.log(state[1].interactionCache);
 
 // import { run } from "./state";
 

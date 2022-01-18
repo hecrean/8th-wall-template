@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControlsExp } from "three-stdlib";
 import { initSurfaces, SurfaceHandles } from "./surface";
 import { initObjects, ObjectHandles } from "./objects";
-import { UI, ui } from "./ui";
+import { UIs, registerUi, uiElements } from "./ui";
 import { Assets, assets } from "./assets";
 import {
   interactionCache,
@@ -39,7 +39,7 @@ export type SceneGraphCtx = {
   surfaceHandles: SurfaceHandles;
   objectHandles: ObjectHandles;
   raycaster: THREE.Raycaster;
-  ui: UI;
+  ui: UIs;
   assets: Assets;
   interactionCache: InteractionCache;
   mouse: THREE.Vector2;
@@ -50,14 +50,15 @@ export const initSceneGraphCtx = (): SceneGraphCtx => {
 
   const cache = interactionCache();
 
-  Object.values(obj3ds).map((o) =>
-    interactionCacheApi.register(cache)(o, buttonEventApi)
-  );
+  const ui = uiElements();
+  registerUi(cache, ui);
+
+  const surfaces = initSurfaces();
 
   return {
-    surfaceHandles: initSurfaces(),
+    surfaceHandles: surfaces,
     objectHandles: obj3ds,
-    ui: ui(),
+    ui: ui,
     raycaster: new THREE.Raycaster(),
     assets: assets(),
     interactionCache: cache,
@@ -85,7 +86,9 @@ export const synchroniseState = (
   sceneGraphCtx: SceneGraphCtx
 ): State => {
   const obj3ds = Object.values(sceneGraphCtx.objectHandles);
+  const uis = Object.values(sceneGraphCtx.ui).map((ui) => ui.el);
   renderCtx.scene.add(...obj3ds);
+  renderCtx.scene.add(...uis);
 
   return [
     renderCtx,

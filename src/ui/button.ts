@@ -1,5 +1,4 @@
 import { EventHandlers } from "../event";
-import { defaultEventHandlers } from ".";
 import { Mesh, Object3D, BufferGeometry, MeshStandardMaterial } from "three";
 
 const isMesh = (
@@ -8,7 +7,22 @@ const isMesh = (
   return o instanceof Mesh;
 };
 
-const _ = (): void => {};
+export const defaultEventHandlers: EventHandlers = {
+  onPointerEnter: (state, event) => state,
+  onPointerUp: (state, event) => state,
+  onPointerDown: (state, event) => state,
+  onPointerOver: (state, event) => state,
+  onPointerOut: (state, event) => state,
+  onPointerLeave: (state, event) => state,
+  onPointerMove: (state, event) => state,
+  onPointerCancel: (state, event) => state,
+  onTouchStart: (state, event) => state,
+  onTouchMove: (state, event) => state,
+  onTouchEnd: (state, event) => state,
+  onTouchCancel: (state, event) => state,
+};
+
+const unitFn = (): void => {};
 
 export const buttonEventApi: EventHandlers = {
   ...defaultEventHandlers,
@@ -18,32 +32,27 @@ export const buttonEventApi: EventHandlers = {
 
     return [renderCtx, sceneGraphCtx, userCtx];
   },
-  // onPointerEnter: (state, intersectionEv) => {
-  //   const target = intersectionEv.object;
-  //   isMesh(target) ? target.material.color.set("green") : _;
-  //   return state;
-  // },
-  // onPointerLeave: (state, intersectionEv) => {
-  //   isMesh(intersectionEv.object)
-  //     ? intersectionEv.object.material.color.set("yellow")
-  //     : _;
-
-  //   return state;
-  // },
   onPointerDown: (state, intersectionEv) => {
     isMesh(intersectionEv.object)
       ? intersectionEv.object.material.color.set("yellow")
-      : _;
+      : unitFn;
 
     return state;
   },
   onPointerUp: (state, intersectionEv) => {
     isMesh(intersectionEv.object)
       ? intersectionEv.object.material.color.set("blue")
-      : _;
+      : unitFn;
 
     return state;
   },
+  // onPointerMove: (state, intersectionEv) => {
+  //   isMesh(intersectionEv.object)
+  //     ? intersectionEv.object.material.color.set("pink")
+  //     : _;
+
+  //   return state;
+  // },
 };
 
 const canvasEventApi: EventHandlers = {

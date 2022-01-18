@@ -5,7 +5,7 @@ import { Object3D } from "three";
 export type InteractionCache = Map<string, EventHandlers>;
 
 export const interactionCache = (): InteractionCache => {
-  return new Map();
+  return new Map<string, EventHandlers>();
 };
 
 interface InteractionCacheApi {
@@ -19,5 +19,7 @@ export const interactionCacheApi: InteractionCacheApi = {
   register: (cache) => (o, eventHandlers) => {
     cache.set(o.uuid, eventHandlers);
   },
-  unregister: (cache) => (o) => {},
+  unregister: (cache) => (o) => {
+    cache.delete(o.uuid);
+  },
 };

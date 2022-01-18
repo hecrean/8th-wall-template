@@ -54,7 +54,7 @@ export const input$ = merge(
   pointerenter$,
   pointerleave$,
   pointerdown$,
-  pointermove$.pipe(throttle((_) => interval(1000))),
+  pointermove$, //.pipe(throttle((_) => interval(1000))),
   pointerup$,
   pointercancel$,
   pointerout$

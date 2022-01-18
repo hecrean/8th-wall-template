@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { InteractionCache, interactionCacheApi } from "./interaction-cache";
 
 export type ObjectHandles = { [key: string]: THREE.Object3D };
 
